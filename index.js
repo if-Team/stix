@@ -217,7 +217,7 @@ buttonRename.on('press', () => {
 				if(result) logView.log(`{white-fg}{green-bg}  ${symbols.ok}  {/} Renamed ${v}`);
 				else logView.log(`{white-fg}{red-bg}  ${symbols.err}  {/} Skipping ${v}`);
 
-				progress.progress(Math.round(k / (dirs.length - 1) * 100));
+				progress.setProgress(Math.round(k / (dirs.length - 1) * 100));
 				screen.render();
 				setTimeout(cb, 50);
 			});
