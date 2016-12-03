@@ -1,0 +1,30 @@
+{
+  "name": "stix",
+  "version": "0.0.1",
+  "description": "A destiny child model renamer",
+  "main": "index.js",
+  "dependencies": {
+    "async": "^2.1.4",
+    "blessed": "^0.1.81"
+  },
+  "devDependencies": {},
+  "scripts": {
+  	"start": "node index",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/if-Team/stix.git"
+  },
+  "keywords": [
+    "Live2D",
+    "DestinyChild",
+    "renamer"
+  ],
+  "author": "if-Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/if-Team/stix/issues"
+  },
+  "homepage": "https://github.com/if-Team/stix#readme"
+}
