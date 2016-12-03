@@ -4,30 +4,29 @@ const fs = require('fs');
 const path = require('path');
 const rename = require('./rename');
 const undo = require('./undo');
-const logo = 
-`!!!!!!!!!!!!!!!!!!!!    !!!!!!!!!!!!!!!!!!!!!!!!   !!!!!!!!!!   !!!                 !!!!
-!!!!!!!!!!!!!!!!!!!      !!!!!!!!!!!!!!!!!!!!!!!   !!!!!!!!!!   !!!!                !!!! 
-!!!!!!!!!!!!!!!!!!        !!!!!!!!!!!!!!!!!!!!!    !!!!!!!!!     !!!!              !!!!  
-!!             !!          !!      !!!                !!!!!       !!!!            !!!!   
-!!            !!            !!     !!!                !!!!         !!!!          !!!!    
-!!           !!              !!    !!!                !!!           !!!!        !!!!     
-!!          !!                !!   !!!                !!             !!!!      !!!!      
-!!!        !!                  !!  !!!                !!              !!!!    !!!!       
-!!!!!     !!                    !! !!!                !!               !!!!  !!!!        
-!!!!!!!  !!                      !!!!!                !!                !!!!!!!!         
-   !!!!!!!                        !!!!                !!                 !!!!!!          
-     !!!!!!!                       !!!                !!                  !!!!           
-       !!!!!!!!                    !!!                !!                 !!!!!           
-          !!!!!!!                  !!!                !!                !!!!!!!          
-            !!!!!!!                !!!                !!                !!!!!!!!         
-               !!!!!               !!!                !!               !!!!  !!!!        
-                 !!!               !!!                !!              !!!!    !!!!       
-                 !!!               !!!                !!             !!!!      !!!!      
-                 !!!               !!!                !!            !!!!        !!!!     
-                 !!!               !!!                !!           !!!!          !!!!    
-                 !!!               !!!                !!          !!!!            !!!!   
-!!!!!!!!!!!!!!!!!!!!               !!!             !!!!!!!!      !!!!              !!!!  
-!!!!!!!!!!!!!!!!!!!!               !!!             !!!!!!!!     !!!!!!!!!!!!!!!!!!!!!!!! 
+const logo =
+`..................................................................................
+.                                                                                .
+.    $$$$$$$$$$$$$$$$$   $$$$$$$$$$$$$$$$$$$$$ $$$$$$$$$  $$$$             $$$$  .
+.    $$$$$$$$$$$$$$$$$    $$$$$$$$$$$$$$$$$$$  $$$$$$$$$   $$$$           $$$$   .
+.    $$$          $$$      $$$    $$$             $$$$$     $$$$         $$$$    .
+.    $$$         $$$        $$$   $$$             $$$$      $$$$$       $$$$     .
+.    $$$        $$$          $$$  $$$             $$$        $$$$$     $$$$$     .
+.    $$$       $$$            $$$ $$$             $$$         $$$$$   $$$$$      .
+.    $$$$     $$$              $$$$$$             $$$          $$$$$ $$$$$       .
+.    $$$$$$$ $$$                $$$$$             $$$           $$$$$$$$$        .
+.      $$$$$$$$                  $$$$             $$$            $$$$$$$         .
+.        $$$$$$$                  $$$             $$$             $$$$$          .
+.          $$$$$$$$               $$$             $$$             $$$$$          .
+.             $$$$$$$             $$$             $$$            $$$$$$$         .
+.               $$$$$$            $$$             $$$           $$$$ $$$$        .
+.                  $$$            $$$             $$$          $$$$   $$$$       .
+.                  $$$            $$$             $$$         $$$$     $$$$      .
+.                  $$$            $$$             $$$        $$$$       $$$$     .
+.                  $$$            $$$             $$$       $$$$         $$$$    .
+.    $$$$$$$$$$$$$$$$$            $$$          $$$$$$$$    $$$$$         $$$$$   .
+.    $$$$$$$$$$$$$$$$$            $$$          $$$$$$$$   $$$$$$$$$$$$$$$$$$$$$  .
+..................................................................................
 
 Please add your c_[number] folders into assets folder!`;
 
@@ -90,7 +89,7 @@ const buttonRename = blessed.button({
 		right: 1
 	},
 	left: '25%',
-	top: 3,
+	top: 2,
 	width: '25%',
 	height: 3,
 	content: 'Rename DestinyChild models',
@@ -99,6 +98,36 @@ const buttonRename = blessed.button({
 	align: 'center',
 	style: {
 		bg: 'blue',
+		fg: 'white',
+		focus: {
+			bg: 'white',
+			fg: 'black'
+		},
+		hover: {
+			bg: 'white',
+			fg: 'black'
+		}
+	}
+});
+
+const buttonRenameWof = blessed.button({
+	parent: mainButton,
+	mouse: true,
+	keys: true,
+	padding: {
+		left: 1,
+		right: 1
+	},
+	left: '25%',
+	top: 6,
+	width: '50%',
+	height: 3,
+	content: 'Rename DestinyChild models without renaming folders.',
+	name: 'rename',
+	valign: 'middle',
+	align: 'center',
+	style: {
+		bg: 'cyan',
 		fg: 'white',
 		focus: {
 			bg: 'white',
@@ -120,7 +149,7 @@ const buttonUndo = blessed.button({
 		right: 1
 	},
 	left: '50%',
-	top: 3,
+	top: 2,
 	width: '25%',
 	height: 3,
 	content: 'Undo renaming',
@@ -145,13 +174,13 @@ screen.append(logoBox);
 screen.render();
 
 screen.key(['escape', 'q', 'C-c'], function(ch, key) {
-  return process.exit(0);
+	return process.exit(0);
 });
 
 const renderProgress = () => {
 	logoBox.detach();
 	mainButton.detach();
-	
+
 	const logView = blessed.log({
 		parent: screen,
 		width: '100%',
@@ -164,7 +193,7 @@ const renderProgress = () => {
 			type: 'line'
 		}
 	});
-	
+
 	const skippedView = blessed.log({
 		parent: screen,
 		width: '100%',
@@ -178,7 +207,7 @@ const renderProgress = () => {
 		}
 
 	});
-	
+
 	const progress = blessed.progressbar({
 		parent: screen,
 		orientation: 'horizontal',
@@ -204,36 +233,40 @@ const renderProgress = () => {
 	return {logView, skippedView, progress};
 };
 
-buttonRename.on('press', () => {
-	const {logView, skippedView, progress} = renderProgress();
-	const rootDir = path.join(__dirname, 'assets');
-	const dirs = fs.readdirSync(rootDir);
-	setTimeout(() => {
-		async.eachOfSeries(dirs, (v, k, cb) => {
-			process.nextTick(() => {
-				if(database[v] !== undefined){
-					let _v = v;
-					v = database[v];
-					fs.renameSync(path.join(rootDir, _v), path.join(rootDir, v));
-				}
-				
-				let result = rename('assets', v, (content) => {
-					skippedView.log(content);
-				});
-		
-				if(result) logView.log(`{white-fg}{green-bg}  ${symbols.ok}  {/} Renamed ${v}`);
-				else logView.log(`{white-fg}{red-bg}  ${symbols.err}  {/} Skipping ${v}`);
+const createRenameListener = (changeFoldername) => {
+	return () => {
+		const {logView, skippedView, progress} = renderProgress();
+		const rootDir = path.join(__dirname, 'assets');
+		const dirs = fs.readdirSync(rootDir);
+		setTimeout(() => {
+			async.eachOfSeries(dirs, (v, k, cb) => {
+				process.nextTick(() => {
+					if(database[v] !== undefined && changeFoldername){
+						let _v = v;
+						v = database[v];
+						fs.renameSync(path.join(rootDir, _v), path.join(rootDir, v));
+					}
 
-				progress.setProgress(Math.round(k / (dirs.length - 1) * 100));
-				screen.render();
-				setTimeout(cb, 50);
+					let result = rename('assets', v, (content) => {
+						skippedView.log(content);
+					});
+
+					if(result) logView.log(`{white-fg}{green-bg}  ${symbols.ok}  {/} Renamed ${v}`);
+					else logView.log(`{white-fg}{red-bg}  ${symbols.err}  {/} Skipping ${v}`);
+
+					progress.setProgress(Math.round(k / (dirs.length - 1) * 100));
+					screen.render();
+					setTimeout(cb, 50);
+				});
+			}, () => {
+				logView.log(`{white-fg}{cyan-bg}  ${symbols.ok}  {/} All jobs done. Press Q to exit.`);
 			});
-		}, () => {
-			logView.log(`{white-fg}{cyan-bg}  ${symbols.ok}  {/} All jobs done. Press Q to exit.`);
-		});
-	}, 1000);
-	
-});
+		}, 1000);
+	};
+};
+
+buttonRename.on('press', createRenameListener(true));
+buttonRenameWof.on('press', createRenameListener(false));
 
 buttonUndo.on('press', () => {
 	const {logView, skippedView, progress} = renderProgress();
@@ -247,14 +280,14 @@ buttonUndo.on('press', () => {
 				let _v = v;
 				v = `${split[0]}_${split[1]}`;
 				fs.renameSync(path.join(rootDir, _v), path.join(rootDir, v));
-				
+
 				let result = undo('assets', v, (content) => {
 					skippedView.log(content);
 				});
-		
+
 				if(result) logView.log(`{white-fg}{green-bg}  ${symbols.ok}  {/} Undone ${v}`);
 				else logView.log(`{white-fg}{red-bg}  ${symbols.err}  {/} Skipping ${v}`);
-				
+
 				progress.setProgress(Math.round(k / (dirs.length - 1) * 100));
 				screen.render();
 				setTimeout(cb, 50);
