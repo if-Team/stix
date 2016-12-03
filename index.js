@@ -41,6 +41,7 @@ if(process && process.platform === 'win32'){
 	symbols.err = '×'
 }
 
+const database = require('./pck-database.json');
 const screen = blessed.screen({
 	smartCSR: true,
 	dockBorders: true,
@@ -210,6 +211,12 @@ buttonRename.on('press', () => {
 	setTimeout(() => {
 		async.eachOfSeries(dirs, (v, k, cb) => {
 			process.nextTick(() => {
+				if(database[v] !== undefined){
+					let _v = v;
+					v = database[v];
+					fs.renameSync(path.join(rootDir, _v), path.join(rootDir, v));
+				}
+				
 				let result = rename('assets', v, (content) => {
 					skippedView.log(content);
 				});
@@ -235,6 +242,12 @@ buttonUndo.on('press', () => {
 	setTimeout(() => {
 		async.eachOfSeries(dirs, (v, k, cb) => {
 			process.nextTick(() => {
+				let split = v.split('_');
+				if(split.length > 2);
+				let _v = v;
+				v = `${split[0]}_${split[1]}`;
+				fs.renameSync(path.join(rootDir, _v), path.join(rootDir, v));
+				
 				let result = undo('assets', v, (content) => {
 					skippedView.log(content);
 				});
